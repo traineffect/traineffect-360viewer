@@ -263,11 +263,19 @@
 
   /* ---------- azimuth arc ---------- */
 
+  /* The backing store has to be resized whenever the element is, not only on
+     window resize. #arc is flex:1 inside the strip, so it shrinks the moment
+     Source and Verdict fill in with real text. Sizing it once at boot leaves
+     drawArc working in current CSS pixels while painting into a canvas sized
+     for the old layout, which slides the azimuth marker off true. */
   function sizeArc() {
     var r = Math.min(devicePixelRatio, 2);
-    arc.width = arc.clientWidth * r;
-    arc.height = arc.clientHeight * r;
-    ax.setTransform(r, 0, 0, r, 0, 0);
+    var w = Math.round(arc.clientWidth * r);
+    var h = Math.round(arc.clientHeight * r);
+    if (!w || !h) return;
+    if (arc.width !== w) arc.width = w;
+    if (arc.height !== h) arc.height = h;
+    ax.setTransform(r, 0, 0, r, 0, 0);   // resizing a canvas resets its transform
   }
 
   // camera.fov is vertical. The arc shows how much of the 360 is on screen,
@@ -382,6 +390,9 @@
      when the first image is sized, and so a missing WebGL context is
      reported up front rather than after a decode. */
   readInk();
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(function () { sizeArc(); }).observe(arc);
+  }
   try {
     boot();
   } catch (err) {
