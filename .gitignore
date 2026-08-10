@@ -16,4 +16,11 @@ desktop.ini
 *.tif
 *.tiff
 *.dng
-!favicon.svg
+
+# The social card is generated from og.svg and committed, since the deploy has
+# no build step. Regenerate with scripts/render-og.mjs.
+!og.png
+
+# Wrangler writes account id and account name here when any wrangler
+# command runs in this directory. Never commit it: this repo is public.
+.wrangler/

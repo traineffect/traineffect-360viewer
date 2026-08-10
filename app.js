@@ -19,6 +19,10 @@
      capped here regardless of what the GPU reports as its maximum. */
   var TEXTURE_CEILING = 8192;
 
+  var FOV_MIN = 22, FOV_MAX = 100;
+  var LOOK_SPEED = 0.13;          // degrees of rotation per pixel dragged
+  var WHEEL_SPEED = 0.04;
+
   // Where the missing band sits when an image is not a full 2:1 sphere.
   // Drone panoramas normally have full nadir and a hole at zenith.
   var PAD_MODES = ['top', 'centre', 'bottom'];
@@ -26,6 +30,8 @@
   var scene, camera, renderer, mesh, maxTex = TEXTURE_CEILING;
   var lon = 0, lat = 0, fov = 74;
   var dragging = false, px = 0, py = 0;
+  var pointers = new Map();       // live pointers by id: one drags, two pinch
+  var pinchSpan = 0, pinchMid = null;
   var padIndex = 0;
   var source = null;              // working canvas, already downscaled
   var sourceW = 0, sourceH = 0;   // dimensions of the file as delivered
@@ -87,37 +93,99 @@
     tick();
   }
 
-  function endDrag(e) {
-    if (!dragging) return;
-    dragging = false;
-    renderer.domElement.classList.remove('dragging');
-    if (e && e.pointerId !== undefined) {
-      try { renderer.domElement.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
-    }
+  function setFov(v) {
+    fov = Math.max(FOV_MIN, Math.min(FOV_MAX, v));
+    camera.fov = fov;
+    camera.updateProjectionMatrix();
+  }
+
+  function turn(dx, dy) {
+    lon -= dx * LOOK_SPEED;
+    lat = Math.max(-85, Math.min(85, lat + dy * LOOK_SPEED));
+  }
+
+  // The two oldest live pointers are the pinch pair. Map preserves insertion
+  // order, so a third finger landing does not hijack the gesture.
+  function pinchPair() {
+    var it = pointers.values();
+    return [it.next().value, it.next().value];
+  }
+
+  function measurePinch() {
+    var p = pinchPair();
+    pinchSpan = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+    pinchMid = { x: (p[0].x + p[1].x) / 2, y: (p[0].y + p[1].y) / 2 };
   }
 
   function bindPointer(c) {
+    function grab(on) {
+      dragging = on;
+      c.classList.toggle('dragging', on);
+    }
+
     c.addEventListener('pointerdown', function (e) {
-      dragging = true; px = e.clientX; py = e.clientY;
-      c.classList.add('dragging'); c.setPointerCapture(e.pointerId);
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      c.setPointerCapture(e.pointerId);
+
+      if (pointers.size === 1) {
+        px = e.clientX; py = e.clientY;
+        grab(true);
+      } else if (pointers.size === 2) {
+        measurePinch();
+        grab(false);              // the pinch owns the gesture from here
+      }
     });
+
     c.addEventListener('pointermove', function (e) {
+      if (!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+      /* Two fingers zoom and pan together, which is how the gesture reads on a
+         phone: spreading widens the span, and a wider span means a narrower
+         field of view. Tracking the midpoint as well means a pinch that drifts
+         does not feel like it has stuck. */
+      if (pointers.size >= 2) {
+        var before = pinchSpan, mid = pinchMid;
+        measurePinch();
+        if (before > 0 && pinchSpan > 0) setFov(fov * (before / pinchSpan));
+        if (mid) turn(pinchMid.x - mid.x, pinchMid.y - mid.y);
+        return;
+      }
+
       if (!dragging) return;
-      lon -= (e.clientX - px) * 0.13;
-      lat = Math.max(-85, Math.min(85, lat + (e.clientY - py) * 0.13));
+      turn(e.clientX - px, e.clientY - py);
       px = e.clientX; py = e.clientY;
     });
 
-    // pointerup alone leaves the view glued to the pointer when a touch is
-    // cancelled or capture is lost, so all three paths end the drag.
-    c.addEventListener('pointerup', endDrag);
-    c.addEventListener('pointercancel', endDrag);
-    c.addEventListener('lostpointercapture', endDrag);
+    /* pointerup alone leaves the view glued to the pointer when a touch is
+       cancelled or capture is lost, so all three paths release it. */
+    function release(e) {
+      if (!pointers.has(e.pointerId)) return;   // also stops the re-entry from
+      pointers.delete(e.pointerId);             // our own releasePointerCapture
+      try { c.releasePointerCapture(e.pointerId); } catch (err) { /* already gone */ }
+
+      if (pointers.size === 1) {
+        // One finger left. Re-anchor on it, otherwise the view jumps by the
+        // distance between the lifted finger and the remaining one.
+        var last = pointers.values().next().value;
+        px = last.x; py = last.y;
+        pinchSpan = 0; pinchMid = null;
+        grab(true);
+      } else if (pointers.size === 0) {
+        pinchSpan = 0; pinchMid = null;
+        grab(false);
+      } else {
+        measurePinch();           // three fingers down to two
+      }
+    }
+
+    c.addEventListener('pointerup', release);
+    c.addEventListener('pointercancel', release);
+    c.addEventListener('lostpointercapture', release);
 
     c.addEventListener('wheel', function (e) {
       e.preventDefault();
-      fov = Math.max(22, Math.min(100, fov + e.deltaY * 0.04));
-      camera.fov = fov; camera.updateProjectionMatrix();
+      setFov(fov + e.deltaY * WHEEL_SPEED);
     }, { passive: false });
   }
 

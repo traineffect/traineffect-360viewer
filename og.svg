@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="360 Viewer, Train Effect">
+  <title>360 Viewer · Train Effect</title>
+
+  <!-- Source for og.png. Rendered by scripts/render-og.mjs through headless
+       Chromium so the Train Effect webfonts are used. Opened on its own this
+       file falls back to Georgia and a system mono, which is fine: the PNG is
+       the artefact, this is the editable source. -->
+
+  <rect width="1200" height="630" fill="#14110E"/>
+
+  <!-- Horizon: ties the text block to the globe's equator -->
+  <line x1="0" y1="352" x2="1200" y2="352" stroke="#C8893F" stroke-width="1" opacity=".28"/>
+
+  <!-- Wireframe globe, bleeding off the right edge -->
+  <g fill="none" stroke="#C8893F" stroke-width="1.6" transform="translate(960 352)">
+    <!-- meridians -->
+    <ellipse rx="250" ry="250" opacity=".95" stroke-width="2.2"/>
+    <ellipse rx="177" ry="250" opacity=".5"/>
+    <ellipse rx="87"  ry="250" opacity=".38"/>
+    <line x1="0" y1="-250" x2="0" y2="250" opacity=".38"/>
+    <!-- latitudes, foreshortened -->
+    <ellipse rx="250" ry="60" opacity=".7"/>
+    <ellipse cy="-125" rx="216" ry="52" opacity=".42"/>
+    <ellipse cy="125"  rx="216" ry="52" opacity=".42"/>
+    <ellipse cy="-216" rx="125" ry="30" opacity=".3"/>
+    <ellipse cy="216"  rx="125" ry="30" opacity=".3"/>
+  </g>
+
+  <!-- The slice on screen, the same idea as the azimuth arc in the viewer -->
+  <path d="M 960 102 A 250 250 0 0 1 1130 176" fill="none" stroke="#E0A862" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Left edge, echoing the intake plate -->
+  <rect x="0" y="0" width="8" height="630" fill="#C8893F"/>
+
+  <g font-family="'Geist Mono Variable', ui-monospace, 'SF Mono', Consolas, monospace">
+    <text x="92" y="150" font-size="19" font-weight="500" letter-spacing="4.4" fill="#C8893F">TRAIN EFFECT</text>
+    <!-- --paper-muted, not --paper-faint: feeds scale this card down and faint
+         type at 3.6:1 disappears entirely -->
+    <text x="92" y="536" font-size="20" letter-spacing="1.2" fill="#B3A99B">360viewer.traineffect.co.nz</text>
+  </g>
+
+  <text x="92" y="288" font-family="'Fraunces Variable', Georgia, 'Times New Roman', serif"
+        font-size="104" font-weight="400" letter-spacing="-1.5" fill="#EFE9DF">360 Viewer</text>
+
+  <g font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="27" fill="#B3A99B">
+    <text x="92" y="404">Equirectangular panoramas, read in the browser.</text>
+    <text x="92" y="446" fill="#EFE9DF">Your image stays on your device.</text>
+  </g>
+</svg>

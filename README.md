@@ -91,9 +91,33 @@ and bottom rather than squashed, and the strip says so.
 three.js. This is deliberate: `ImageBitmap` and `HTMLImageElement` disagree on Y origin
 and the sphere renders upside down otherwise. Do not simplify it away.
 
-## Not built yet
+**Touch.** One finger looks around. Two fingers zoom and pan together: spreading widens
+the span between them, which narrows the field of view. Lifting one finger of a pinch
+re-anchors on the one still down rather than jumping.
 
-A delivery mode where the panorama ships alongside the page, so a client opens a link
-rather than dragging a file in. That needs no CSP change: `img-src 'self'` already permits
-loading a bundled same-origin image, and the canvas round trip means the
-`HTMLImageElement` path drops straight in.
+## Deliberately not built
+
+**A hosted delivery mode**, where the panorama ships alongside the page so a client opens a
+link rather than dragging a file in. Decided against on 2026-08-10: the viewer's job is
+checking a stitch, and whoever is looking has the file. Adding hosting would also mean
+deciding retention, link guessability and access periods, which is a lot of surface for a
+tool that is one screen.
+
+If it is ever wanted, it needs no CSP change. `img-src 'self'` already permits loading a
+bundled same-origin image, and the canvas round trip means the `HTMLImageElement` path
+drops straight in.
+
+## The social card
+
+`og.svg` is the source, `og.png` is what gets served, and both are committed because the
+deploy has no build step. Regenerate after editing the SVG:
+
+```bash
+node scripts/render-og.mjs ../path-to-a-project-with-playwright/
+```
+
+It renders through headless Chromium rather than an SVG rasteriser because the card sets
+type in Fraunces and Geist Mono, which are `@font-face` files here rather than installed
+system fonts. A rasteriser falls back to Georgia without saying so, and the script refuses
+to write a card if the fonts did not load. Playwright is not a dependency of this repo, so
+point it at a project that has one.
