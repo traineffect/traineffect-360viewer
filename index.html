@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>360 Viewer · Train Effect</title>
+<meta name="description" content="View equirectangular 360 panoramas in the browser. Images stay on your device.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/geist-mono-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/fraunces-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<div id="ring" aria-hidden="true"></div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div id="intake">
+  <div class="plate">
+    <div class="eyebrow">Equirectangular panorama</div>
+    <h1>Drop a 360 image here</h1>
+    <p class="lede">Your image stays on your device. It is read directly into this page and never sent anywhere: this site has no server to send it to.</p>
+    <div id="note"></div>
+    <button class="pick" id="pick">Choose file</button>
+    <input type="file" id="file" accept="image/*" hidden>
+    <p class="fine">Drag to look around · Scroll to zoom · Arrow keys to pan</p>
+  </div>
+</div>
+
+<div id="strip">
+  <div class="field"><span class="k">Azimuth</span><span class="v" id="az">0.0°</span></div>
+  <div class="field"><span class="k">Pitch</span><span class="v" id="pt">0.0°</span></div>
+  <canvas id="arc" aria-hidden="true"></canvas>
+  <div class="field"><span class="k">Source</span><span class="v" id="dim">—</span></div>
+  <div id="verdict">—</div>
+  <button id="padbtn" hidden>Gap: top</button>
+  <button id="again">New image</button>
+</div>
+
+<script src="three.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

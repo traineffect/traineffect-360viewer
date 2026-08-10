@@ -1,0 +1,188 @@
+/* 360 Viewer.
+   Palette, type and motion tokens follow the Train Effect design system:
+   traineffect-designer/clients/matthewpaterson/design-decision-record.md §2,
+   as shipped in astro-matthewpaterson/src/styles/tokens.css.
+
+   The system's warm charcoal nocturne is used here rather than the light
+   ground planned for traineffect.co.nz. A viewer's chrome surrounds image
+   content, and a bright UI around a panorama wrecks your read of its
+   exposure. Deliberate exception, recorded in the design note. */
+
+/* Self-hosted so the page makes no third-party requests. Latin subset only,
+   wght axis only: the two files together are about 66 KB. */
+@font-face {
+  font-family: 'Fraunces Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(fonts/fraunces-latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Geist Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(fonts/geist-mono-latin-wght-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+:root{
+  /* Colour: warm charcoal nocturne */
+  --ground:        #14110E;
+  --ground-raised: #1D1915;
+  --ground-sunk:   #0E0B09;
+  --paper:         #EFE9DF;
+  --paper-muted:   #B3A99B;
+  --paper-faint:   #756C5E;
+  --amber:         #C8893F;
+  --amber-soft:    #E0A862;
+  --hairline:      #2A251F;
+  /* Warm coral for fault states. Distinct from amber in hue, and 5.7:1 on
+     --ground so it passes AA at the 12px the strip uses. */
+  --alert:         #D9705A;
+
+  /* Type */
+  --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
+  --font-body:    system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:    "Geist Mono Variable", ui-monospace, "SF Mono", Consolas, monospace;
+
+  /* Structure and motion */
+  --radius-control: 4px;
+  --dur-fast:   160ms;
+  --dur-normal: 320ms;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--ground);
+  color:var(--paper);
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+canvas{display:block}
+#stage{cursor:grab;touch-action:none}
+#stage.dragging{cursor:grabbing}
+
+/* ---------- intake ---------- */
+#intake{
+  position:fixed;inset:0;z-index:20;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--ground);
+  transition:opacity var(--dur-normal) var(--ease),background-color var(--dur-fast) linear;
+}
+#intake.armed{background:var(--ground-raised)}
+#intake.gone{opacity:0;pointer-events:none}
+.plate{
+  width:min(470px,88vw);
+  border:1px solid var(--hairline);
+  border-left:3px solid var(--amber);
+  background:var(--ground-sunk);
+  padding:38px 34px 28px;
+}
+.eyebrow{
+  font-family:var(--font-mono);font-size:11px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--amber);margin-bottom:20px;
+}
+.plate h1{
+  font-family:var(--font-display);
+  font-size:30px;font-weight:400;line-height:1.08;
+  letter-spacing:-.01em;margin-bottom:14px;
+}
+.lede{font-size:14px;line-height:1.65;color:var(--paper-muted);margin-bottom:24px}
+.fine{
+  font-family:var(--font-mono);font-size:11px;line-height:1.8;
+  letter-spacing:.03em;color:var(--paper-muted);margin-top:22px;
+}
+#note{
+  font-family:var(--font-mono);font-size:12px;line-height:1.65;
+  color:var(--amber);margin:-10px 0 22px;display:none;white-space:pre-line;
+}
+#note.show{display:block}
+#note.bad{color:var(--alert)}
+.pick{
+  font-family:var(--font-mono);font-size:12px;
+  letter-spacing:.08em;text-transform:uppercase;
+  background:none;color:var(--paper);
+  border:1px solid var(--paper-faint);
+  border-radius:var(--radius-control);
+  padding:11px 20px;cursor:pointer;
+  transition:border-color var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+}
+.pick:hover{border-color:var(--amber);color:var(--amber-soft)}
+.pick:focus-visible,#again:focus-visible,#padbtn:focus-visible{
+  outline:2px solid var(--amber);outline-offset:3px;
+}
+
+/* ---------- instrument strip ---------- */
+#strip{
+  position:fixed;left:0;right:0;bottom:0;z-index:10;
+  display:flex;align-items:center;gap:22px;
+  padding:12px 18px;
+  background:linear-gradient(to top,rgba(14,11,9,.95),rgba(14,11,9,0));
+  font-family:var(--font-mono);font-size:12px;
+  opacity:0;transition:opacity var(--dur-normal) var(--ease);
+  pointer-events:none;
+}
+#strip.live{opacity:1;pointer-events:auto}
+.field{display:flex;gap:8px;align-items:baseline;white-space:nowrap}
+.field .k{
+  color:var(--paper-faint);font-size:10px;font-weight:500;
+  letter-spacing:.13em;text-transform:uppercase;
+}
+.field .v{color:var(--paper);min-width:50px}
+#arc{flex:1;height:22px;min-width:90px}
+#verdict{
+  padding:3px 9px;border:1px solid var(--hairline);
+  border-radius:var(--radius-control);
+  color:var(--paper-muted);white-space:nowrap;
+}
+#verdict.bad{border-color:var(--alert);color:var(--alert)}
+#again,#padbtn{
+  font-family:var(--font-mono);font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;
+  background:none;border:1px solid var(--hairline);color:var(--paper-muted);
+  border-radius:var(--radius-control);
+  padding:5px 11px;cursor:pointer;white-space:nowrap;
+  transition:border-color var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+}
+#again:hover,#padbtn:hover{border-color:var(--amber);color:var(--amber-soft)}
+
+/* ---------- toast ----------
+   The intake plate is hidden once an image is on screen, and #note goes with
+   it. Messages raised while viewing land here instead, so a failed second
+   drop is visible rather than silent. */
+#toast{
+  position:fixed;top:18px;left:50%;transform:translateX(-50%);
+  z-index:30;max-width:min(560px,90vw);
+  font-family:var(--font-mono);font-size:12px;line-height:1.6;
+  white-space:pre-line;text-align:center;
+  background:var(--ground-sunk);color:var(--amber);
+  border:1px solid var(--hairline);border-left:3px solid var(--amber);
+  border-radius:var(--radius-control);
+  padding:10px 16px;
+  opacity:0;pointer-events:none;
+  transition:opacity var(--dur-fast) var(--ease);
+}
+#toast.show{opacity:1}
+#toast.bad{color:var(--alert);border-left-color:var(--alert)}
+
+/* Drop feedback once the intake plate is out of the way. */
+#ring{
+  position:fixed;inset:0;z-index:25;pointer-events:none;
+  border:2px solid var(--amber);opacity:0;
+  transition:opacity var(--dur-fast) var(--ease);
+}
+body.armed #ring{opacity:1}
+
+@media (max-width:860px){
+  #arc,#verdict{display:none}
+  #strip{gap:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  #intake,#strip,#toast,#ring{transition:none}
+}

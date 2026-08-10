@@ -1,0 +1,19 @@
+# Nothing is built here: the repo root is what Cloudflare Pages serves.
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+
+# Test panoramas. Client site imagery must not end up in this repo.
+*.jpg
+*.jpeg
+*.png
+*.tif
+*.tiff
+*.dng
+!favicon.svg
