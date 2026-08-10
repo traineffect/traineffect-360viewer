@@ -1,0 +1,6 @@
+# Normalise to LF in the repository. Cloudflare Pages serves these files as
+# committed, so line endings should not depend on which machine built them.
+* text=auto eol=lf
+
+*.woff2 binary
+*.svg   text eol=lf
