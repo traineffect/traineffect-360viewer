@@ -1,12 +1,14 @@
 /* 360 Viewer.
-   Palette, type and motion tokens follow the Train Effect design system:
-   traineffect-designer/clients/matthewpaterson/design-decision-record.md §2,
-   as shipped in astro-matthewpaterson/src/styles/tokens.css.
+   Colour follows Train Effect's own palette (traineffect-designer/clients/
+   traineffect/design-decision-record.md section 2; astro-traineffect
+   src/styles/tokens.css): the brand blues and the warm paper. Type stays
+   Fraunces and Geist Mono, which the two systems share.
 
-   The system's warm charcoal nocturne is used here rather than the light
-   ground planned for traineffect.co.nz. A viewer's chrome surrounds image
-   content, and a bright UI around a panorama wrecks your read of its
-   exposure. Deliberate exception, recorded in the design note. */
+   Dark ground, by design: a viewer's chrome surrounds image content, and a
+   bright interface around a panorama wrecks your read of its exposure. So
+   the paper is the text and the ground is a cool slate near the brand's ink,
+   with the pale brand blue as the one accent (Matt, 2026-10-07; before this
+   the viewer wore the warm charcoal and amber of matthewpaterson.co.nz). */
 
 /* Self-hosted so the page makes no third-party requests. Latin subset only,
    wght axis only: the two files together are about 66 KB. */
@@ -28,19 +30,23 @@
 }
 
 :root{
-  /* Colour: warm charcoal nocturne */
-  --ground:        #14110E;
-  --ground-raised: #1D1915;
-  --ground-sunk:   #0E0B09;
-  --paper:         #EFE9DF;
-  --paper-muted:   #B3A99B;
-  --paper-faint:   #756C5E;
-  --amber:         #C8893F;
-  --amber-soft:    #E0A862;
-  --hairline:      #2A251F;
-  /* Warm coral for fault states. Distinct from amber in hue, and 5.7:1 on
-     --ground so it passes AA at the 12px the strip uses. */
-  --alert:         #D9705A;
+  /* Colour: Train Effect, at night. A cool slate ground near the brand ink
+     (#1C1C1E), the brand paper for text, and the pale brand blue (#C3D2DF, the
+     tint traineffect.co.nz sets on its deep blue bands) as the accent. The two
+     amber names are kept so the rules below read unchanged; they now hold the
+     blue. */
+  --ground:        #15181C;
+  --ground-raised: #1C2026;
+  --ground-sunk:   #0F1215;
+  --paper:         #F7F2F2;
+  --paper-muted:   #B4B9C2;
+  --paper-faint:   #7A8089;
+  --amber:         #C3D2DF;
+  --amber-soft:    #DDE6EE;
+  --hairline:      #262B32;
+  /* Coral for fault states: distinct from the blue in hue, 5.4:1 on --ground,
+     so it passes AA at the 12px the strip uses. */
+  --alert:         #E07A64;
 
   /* Type */
   --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
@@ -98,6 +104,18 @@ canvas{display:block}
   font-family:var(--font-mono);font-size:11px;line-height:1.8;
   letter-spacing:.03em;color:var(--paper-muted);margin-top:22px;
 }
+/* The one line that says whose tool this is, under the plate while the plate
+   is up. It goes with the intake, so it never sits over a panorama. */
+.foot{
+  position:absolute;left:0;right:0;bottom:18px;
+  text-align:center;
+  font-family:var(--font-mono);font-size:11px;line-height:1.8;
+  letter-spacing:.04em;color:var(--paper-faint);
+}
+.foot a{color:var(--paper-muted);text-decoration:none;border-bottom:1px solid var(--hairline);
+  transition:color var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease)}
+.foot a:hover{color:var(--amber);border-bottom-color:var(--amber)}
+.foot a:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
 #note{
   font-family:var(--font-mono);font-size:12px;line-height:1.65;
   color:var(--amber);margin:-10px 0 22px;display:none;white-space:pre-line;
@@ -123,7 +141,7 @@ canvas{display:block}
   position:fixed;left:0;right:0;bottom:0;z-index:10;
   display:flex;align-items:center;gap:22px;
   padding:12px 18px;
-  background:linear-gradient(to top,rgba(14,11,9,.95),rgba(14,11,9,0));
+  background:linear-gradient(to top,rgba(15,18,21,.95),rgba(15,18,21,0));
   font-family:var(--font-mono);font-size:12px;
   opacity:0;transition:opacity var(--dur-normal) var(--ease);
   pointer-events:none;

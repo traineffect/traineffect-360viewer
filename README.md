@@ -38,13 +38,17 @@ same-origin font files only and opens no outbound path.
 
 ## Design
 
-Palette, type and motion follow the Train Effect design system, as shipped in
-`astro-matthewpaterson/src/styles/tokens.css`.
+Colour follows Train Effect's own palette, as shipped in
+`astro-traineffect/src/styles/tokens.css`: a cool slate ground near the brand ink, the
+brand paper for text, and the pale brand blue as the one accent. Type is Fraunces and
+Geist Mono, which Train Effect and matthewpaterson.co.nz share. Until 2026-10-07 the
+viewer wore the warm charcoal and amber of matthewpaterson.co.nz, because Train Effect had
+no palette of its own yet; it has one now, and the viewer is a Train Effect tool, so it
+says so, in colour and in the one line under the plate that links back to the site.
 
-The system's warm charcoal nocturne is used here rather than the light ground planned for
-`traineffect.co.nz`. A viewer's chrome surrounds image content, and a bright interface
-around a panorama wrecks your read of its exposure. That exception is recorded in
-`traineffect-designer/clients/traineffect/360viewer-design-note.md`.
+The ground stays dark on purpose. A viewer's chrome surrounds image content, and a bright
+interface around a panorama wrecks your read of its exposure. That exception is recorded
+in `traineffect-designer/clients/traineffect/360viewer-design-note.md`.
 
 ## Deploying
 
